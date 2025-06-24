@@ -1,16 +1,28 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppDataSource } from './data-source';
 import { UserModule } from './user/user.module';
+import { User } from './entity/user.entity';
+import { Comment } from './entity/comment.entity';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRootAsync(AppDataSource),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'zenmonk',
+      database: 'postgres',
+      synchronize: true,
+      entities: [User, Comment],
+      subscribers: [],
+      migrations: [],
+    }),
     UserModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
