@@ -13,8 +13,14 @@ export class UserRepository extends Repository<User> {
     });
   }
 
-  async findAllWithPagination(limit?: number, skip?: number): Promise<User[]> {
+  async findAllWithPagination(
+    limit?: number,
+    skip?: number,
+    search?: string,
+  ): Promise<User[]> {
     return this.find({
+      order: { id: 'ASC' },
+      where: { name: search },
       take: limit,
       skip: skip,
       relations: ['comments'],

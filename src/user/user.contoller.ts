@@ -17,8 +17,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  findAll(@Query() query: { limit?: number; skip?: number }) {
-    return this.userService.findAll(query?.limit, query?.skip);
+  findAll(@Query() query: { limit?: number; skip?: number; search?: string }) {
+    return this.userService.findAll(query?.limit, query?.skip, query?.search);
   }
 
   @Get(':id')

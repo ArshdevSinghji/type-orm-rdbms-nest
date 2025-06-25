@@ -6,11 +6,12 @@ import { User } from 'src/entity/user.entity';
 export class UserService {
   constructor(private readonly userRepo: UserRepository) {}
 
-  findAll(limit?: number, skip?: number) {
-    if (limit || skip) {
-      return this.userRepo.findAllWithPagination(limit, skip);
+  findAll(limit?: number, skip?: number, search?: string) {
+    if (limit || skip || search) {
+      return this.userRepo.findAllWithPagination(limit, skip, search);
     }
     return this.userRepo.find({
+      order: { id: 'ASC' },
       relations: ['comments', 'posts', 'likes'],
     });
   }
