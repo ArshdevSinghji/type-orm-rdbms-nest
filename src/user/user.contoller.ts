@@ -21,6 +21,11 @@ export class UserController {
     return this.userService.findAll(query?.limit, query?.skip);
   }
 
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.findOne(id);
+  }
+
   @Post()
   create(@Body() user: Partial<User>) {
     return this.userService.create(user);

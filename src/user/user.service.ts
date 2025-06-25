@@ -10,7 +10,22 @@ export class UserService {
     if (limit || skip) {
       return this.userRepo.findAllWithPagination(limit, skip);
     }
-    return this.userRepo.findAll();
+    return this.userRepo.find({
+      relations: ['comments', 'posts', 'likes'],
+    });
+  }
+
+  findOne(id: number) {
+    return this.userRepo.findOne({
+      where: { id },
+      relations: [
+        'comments',
+        'posts',
+        'likes',
+        'posts.comments',
+        'posts.likes',
+      ],
+    });
   }
 
   upsert(id: number, user: Partial<User>) {
