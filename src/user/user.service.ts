@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { User } from 'src/entity/user.entity';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepo: UserRepository) {}
+  constructor(
+    private readonly userRepo: UserRepository,
+    private readonly dataSource: DataSource,
+  ) {}
 
   findAll(limit?: number, skip?: number, search?: string) {
     if (limit || skip || search) {
@@ -17,7 +21,7 @@ export class UserService {
   }
 
   findOne(id: number) {
-    return this.userRepo.findOne({
+    const user = this.userRepo.findOne({
       where: { id },
       relations: [
         'comments',
@@ -27,15 +31,49 @@ export class UserService {
         'posts.likes',
       ],
     });
+
+    console.log(user);
+
+    return user;
   }
 
   upsert(id: number, user: Partial<User>) {
     return this.userRepo.upsertUser(id, user);
   }
 
-  create(user: Partial<User>) {
-    const createdUser = this.userRepo.create(user);
-    return this.userRepo.save(createdUser);
+  async create(user: Partial<User>) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      let savedUser;
+
+      const existingUser = await queryRunner.manager.findOne(User, {
+        where: { email: user.email },
+        withDeleted: true,
+      });
+
+      if (existingUser && existingUser.deletedAt) {
+        existingUser.deletedAt = null;
+        await queryRunner.manager.update(User, existingUser.id, existingUser);
+        savedUser = queryRunner.manager.findOneBy(User, {
+          id: existingUser.id,
+        });
+      } else if (existingUser) {
+        throw new NotFoundException('User already exsists!');
+      } else {
+        savedUser = queryRunner.manager.create(User, user);
+        await queryRunner.manager.save(savedUser);
+      }
+      await queryRunner.commitTransaction();
+      return savedUser;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   delete(id: number) {

@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Post } from './post.entity';
 import { Comment } from './comment.entity';
 import { Like } from './like.entity';
@@ -22,6 +28,9 @@ export class User {
 
   @Column({ nullable: true })
   bio: string;
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt?: Date | null;
 
   @OneToMany(() => Post, (post) => post.user)
   posts: Post[];

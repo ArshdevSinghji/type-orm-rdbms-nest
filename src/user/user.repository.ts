@@ -28,7 +28,9 @@ export class UserRepository extends Repository<User> {
   }
 
   async findById(id: number): Promise<User | null> {
-    return this.findOne({ where: { id }, relations: ['comments'] });
+    const user = this.findOne({ where: { id }, relations: ['comments'] });
+    console.log(user);
+    return user;
   }
 
   async upsertUser(id: number, user: Partial<User>): Promise<User> {
@@ -42,6 +44,6 @@ export class UserRepository extends Repository<User> {
   }
 
   async removeById(id: number): Promise<void> {
-    await this.delete({ id });
+    await this.softDelete({ id });
   }
 }
