@@ -1,5 +1,6 @@
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -22,6 +23,9 @@ export class Post {
 
   @Column()
   mediaType: string;
+
+  @DeleteDateColumn()
+  deletedAt: Date | null;
 
   @OneToMany(() => Comment, (comment) => comment.post)
   comments: Comment[];

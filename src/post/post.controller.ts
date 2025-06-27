@@ -13,4 +13,16 @@ export class PostController {
   ) {
     return this.postService.addPostToUser(userId, post);
   }
+
+  @Patch('withLike')
+  async createPostWithLike(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body()
+    post: {
+      content: string;
+      mediaType: string;
+    },
+  ) {
+    return this.postService.createPostWithAutoLike(userId, post);
+  }
 }

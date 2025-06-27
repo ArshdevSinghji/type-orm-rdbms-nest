@@ -10,6 +10,7 @@ import { Post } from './entity/post.entity';
 import { Like } from './entity/like.entity';
 import { LikeModule } from './like/like.module';
 import { PostModule } from './post/post.module';
+import { UserCleanupModule } from './cleanup/user-cleanup.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PostModule } from './post/post.module';
     CommentModule,
     LikeModule,
     PostModule,
+    UserCleanupModule,
   ],
   controllers: [AppController],
   providers: [AppService],

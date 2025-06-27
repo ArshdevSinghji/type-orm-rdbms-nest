@@ -31,9 +31,6 @@ export class UserService {
         'posts.likes',
       ],
     });
-
-    console.log(user);
-
     return user;
   }
 
@@ -55,11 +52,20 @@ export class UserService {
       });
 
       if (existingUser && existingUser.deletedAt) {
-        existingUser.deletedAt = null;
-        await queryRunner.manager.update(User, existingUser.id, existingUser);
-        savedUser = queryRunner.manager.findOneBy(User, {
-          id: existingUser.id,
-        });
+        const currentDate = new Date();
+        const daysSinceDeleted = Math.floor(
+          (currentDate.getTime() - existingUser.deletedAt.getTime()) /
+            (1000 * 60 * 60 * 24),
+        );
+        if (daysSinceDeleted <= 30) {
+          existingUser.deletedAt = null;
+          Object.assign(existingUser, user);
+          savedUser = await queryRunner.manager.save(existingUser);
+        } else {
+          await queryRunner.manager.delete(User, { id: existingUser.id });
+          savedUser = queryRunner.manager.create(User, user);
+          await queryRunner.manager.save(savedUser);
+        }
       } else if (existingUser) {
         throw new NotFoundException('User already exsists!');
       } else {
